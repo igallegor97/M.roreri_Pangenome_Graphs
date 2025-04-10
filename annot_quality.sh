@@ -5,6 +5,7 @@ GENOME="Mror_C26.illumina.fasta"
 GFF="Mror_C26.illumina.gff3"
 PREFIX="C26"
 WORKDIR="/home/isagallegor/M_roreri_pan"
+OMAMER_DB="Saccharomyceta.h5"
 
 # ENTER WORKDIR
 cd "$WORKDIR" || exit
@@ -41,3 +42,14 @@ print("Final proteome written in", output_file)
 EOF
 
 echo "Done"
+
+# 4. Run OMAmer annotation
+echo "Running OMAmer with ${OMAMER_DB}"
+omamer search \
+  -q final_proteome_"$PREFIX".fasta \
+  -d "$OMAMER_DB" \
+  -o omamer_assignments_"$PREFIX".tsv \
+  --threshold 0.5 \
+  --top_n_fams 1
+
+echo "Pipeline completed"
