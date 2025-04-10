@@ -29,7 +29,7 @@ SeqIO.write(selected_records, "final_proteome.fasta", "fasta")
 
 # Análisis de calidad
 # OMAmer
-#omamer search -d LUCA.h5 -q /home/isabellagallego/Documentos/output_CDS_C26.fasta -o OMAmer_out --silent
+omamer search -d LUCA.h5 -q /home/isabellagallego/Documentos/output_CDS_C26.fasta -o OMAmer_out --silent
 
 # OMARk
-#omark (-f FILE | -c) -d LUCA.h5 -o /home/isabellagallego/Documentos/OMARk_Results
+omark (-f FILE | -c) -d LUCA.h5 -o /home/isabellagallego/Documentos/OMARk_Results
