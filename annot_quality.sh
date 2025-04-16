@@ -45,14 +45,10 @@ echo "Done"
 
 # 4. RUN OMAmer ANNOTATION
 echo "Running OMAmer with ${OMAMER_DB}"
-omamer search \
-  -q final_proteome_"$PREFIX".fasta \
-  -d "$OMAMER_DB" \
-  -o omamer_assignments_"$PREFIX".tsv \
-  --threshold 0.5 \
-  --top_n_fams 1
+omamer search -q final_proteome_"$PREFIX".fasta -d "$OMAMER_DB" -o omamer_assignments_"$PREFIX".tsv 
 
 # 5. RUN OMArk QUALITY ASSESSMENT 
-omark -f omamer_assignments_C26.tsv -d LUCA.h5 -o output_omark -of ~/M_roreri_pan/final_proteome_C26.fasta
+echo "Running OMArk with ${OMAMER_DB}"
+omark -f omamer_assignments_"$PREFIX".tsv -d "$OMAMER_DB" -o output_omark_"$PREFIX" -of "${WORKDIR}/final_proteome_${PREFIX}.fasta"
 
 echo "Pipeline completed"
