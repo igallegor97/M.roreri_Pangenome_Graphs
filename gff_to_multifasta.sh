@@ -1,29 +1,37 @@
 #!/bin/bash
 
+#$ -q all.q
+#$ -V
+#$ -cwd
+
+source /Storage/progs/miniconda3/condabin/conda
+conda activate psauron
+
+BASE_DIR=$(pwd)
+
+# DEFINE DIRECTORIES
+DATA_DIR="$BASE_DIR/data/calidad_anots/"
+OUTPUT_DIR="$BASE_DIR/cds_output_all"
+OUTPUT_FASTA="$BASE_DIR/all_cds_for_psauron.fasta"
+
 # 1. CREATE OUTPUT DIRECTORY
-mkdir -p cds_output_all
+mkdir -p "$OUTPUT_DIR"
 
 # 2. PROCESS GFF FILES IN DIRECTORY
-for gff in /home/isagallegor/M_roreri_pan/data/*.illumina.gff3
+for gff in "$DATA_DIR"/*.illumina.gff3
 do
-    # OBTAIN BASE NAME
     base=$(basename "$gff" .illumina.gff3)
-
-    # LOCATE FASTA FILES
-    fasta="/home/isagallegor/M_roreri_pan/data/${base}.illumina.fasta"
+    fasta="$DATA_DIR/${base}.illumina.fasta"
 
     if [[ -f "$fasta" ]]; then
-        echo "Processing: $base"
-
-        # EXTRACT CDS
-        gffread "$gff" -g "$fasta" -x "/home/isagallegor/M_roreri_pan/cds_output_all/${base}_cds.fa"
-
+        echo "Procesando: $base"
+        gffread "$gff" -g "$fasta" -x "$OUTPUT_DIR/${base}_cds.fa"
     else
-        echo "FASTA not found for $gff. Omit"
+        echo "FASTA not found for $gff. Omited."
     fi
 done
 
 # 3. MULTI FASTA FILE CREATION
-cat /home/isagallegor/M_roreri_pan/cds_output_all/*_cds.fa > /home/isagallegor/M_roreri_pan/all_cds_for_psauron.fasta
+cat "$OUTPUT_DIR"/*_cds.fa > "$OUTPUT_FASTA"
 
-echo "DONE. File name: all_cds_for_psauron.fasta"
+echo "DONE. File name: $OUTPUT_FASTA"
