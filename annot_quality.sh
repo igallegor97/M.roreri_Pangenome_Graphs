@@ -5,7 +5,7 @@ GENOME="Mror_C26.illumina.fasta"
 GFF="Mror_C26.illumina.gff3"
 PREFIX="C26"
 WORKDIR="/home/isagallegor/M_roreri_pan"
-OMAMER_DB="Saccharomyceta.h5"
+OMAMER_DB="LUCA.h5"
 
 # ENTER WORKDIR
 cd "$WORKDIR" || exit
