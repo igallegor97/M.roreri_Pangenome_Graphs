@@ -5,7 +5,7 @@ module load miniconda3
 conda activate vcf_env
 
 # Input and output files
-VCF="Mror_Pangenome_pacbio.vcf.gz"
+VCF="/Storage/data1/isabella.gallego/MAESTRIA/results_pacbio/Mror_Pangenome_pacbio.vcf.gz"
 OUTDIR="variant_analysis"
 mkdir -p "$OUTDIR/plots" "$OUTDIR/genotipes"
 
