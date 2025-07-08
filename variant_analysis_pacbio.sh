@@ -9,7 +9,7 @@ conda activate vcf_env
 # Input and output files
 VCF="/Storage/data1/isabella.gallego/MAESTRIA/results_pacbio/Mror_Pangenome_pacbio.vcf.gz"
 OUTDIR="variant_analysis"
-mkdir -p "$OUTDIR/plots" "$OUTDIR/genotipes"
+mkdir -p "$OUTDIR/plots" "$OUTDIR/genotypes"
 
 echo "[INFO] Analyzing file $VCF"
 
