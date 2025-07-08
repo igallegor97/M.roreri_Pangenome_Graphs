@@ -2,6 +2,8 @@
 
 # Activate Env
 module load miniconda3
+module load bcftools
+module load python3
 conda activate vcf_env
 
 # Input and output files
