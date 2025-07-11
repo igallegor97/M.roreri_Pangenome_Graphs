@@ -1,0 +1,15 @@
+# Python dependencies
+pandas==2.2.2
+numpy==1.26.4
+matplotlib==3.8.4
+seaborn==0.13.2
+biopython==1.83
+tqdm==4.66.4
+
+# Optional Python packages
+regex==2024.4.16
+pyfaidx==0.8.1.1
+
+# External command-line tools required (install via conda or system package manager)
+# - vg >=1.48.0        https://github.com/vgteam/vg
+# - bcftools >=1.17    https://samtools.github.io/bcftools/
