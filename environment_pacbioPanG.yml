@@ -1,0 +1,17 @@
+name: mroreri_pangenome
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pandas=2.2.2
+  - numpy=1.26.4
+  - matplotlib=3.8.4
+  - seaborn=0.13.2
+  - biopython=1.83
+  - tqdm=4.66.4
+  - regex=2024.4.16
+  - pyfaidx=0.8.1.1
+  - vg=1.48.0
+  - bcftools=1.17
