@@ -18,31 +18,45 @@ The main goals of this pipeline are to:
 
 ## Directory Structure and Key Files
 
-| File/Directory                     | Description                                                 |
-| ---------------------------------- | ----------------------------------------------------------- |
-| `Mror_Pangenome_pacbio.vg`         | Original pangenome graph from Cactus-Minigraph              |
-| `Mror_Pangenome_pacbio_with_W.gfa` | GFA file with added 'W' lines for paths                     |
-| `paths.json`                       | JSON file representing paths extracted from the graph       |
-| `gfa_samples.txt`                  | List of unique sample names extracted from the GFA          |
-| `proteins_fasta/`                  | Original predicted protein FASTA files from genomes         |
-| `proteins_fasta_cleaned/`          | Cleaned protein FASTA files (invalid characters fixed)      |
-| `pangenome_segments.fa`            | Extracted segment sequences from GFA                        |
-| `pangenome_segments.dmnd`          | DIAMOND protein database created from segment sequences     |
-| `diamond_results/`                 | Raw DIAMOND alignment results of proteins vs. segments      |
-| `diamond_results_clean/`           | Filtered and cleaned DIAMOND alignment outputs              |
-| `segment_classification.tsv`       | Classification of segments into core, accessory, or unique  |
-| `gene_matrix.tsv`                  | Matrix mapping genes to segment presence and classification |
-| `gene_lists_per_class/`            | Lists of genes exclusive to each segment class              |
-| `barplot_genes_per_class.png`      | Barplot visualization of gene counts per class              |
-| `piechart_genes_per_class.png`     | Pie chart visualization of gene distribution per class      |
-| `create_gfa_with_W.py`             | Script adding 'W' lines to GFA file for path annotation     |
-| `extract_all_paths_as_gfa.sh`      | Shell script to extract all paths from the GFA file         |
-| `generate_w_lines.py`              | Python script generating 'W' lines for GFA                  |
-| `plot_class_stats.py`              | Script generating visual statistics and plots               |
-| `hmmscan_results_cleaned/`         | Directory with HMMER hmmscan output domain table files      |
-| `all_pfams.tsv`                    | Consolidated PFAM domain hits parsed from hmmscan outputs   |
-| `orthofinder_out/`                 | OrthoFinder clustering results directory                    |
-| `pfams_per_orthogroup.tsv`         | Merged PFAM domain and orthogroup membership table          |
+| File/Directory                            | Description                                                               |
+| ----------------------------------------- | ------------------------------------------------------------------------- |
+| `Mror_Pangenome_pacbio.vg`                | Original pangenome graph from Cactus-Minigraph                            |
+| `Mror_Pangenome_pacbio_with_W.gfa`        | GFA file with added 'W' lines for paths                                   |
+| `paths.json`                              | JSON file representing paths extracted from the graph                     |
+| `gfa_samples.txt`                         | List of unique sample names extracted from the GFA                        |
+| `proteins_fasta/`                         | Original predicted protein FASTA files from genomes                       |
+| `proteins_fasta_cleaned/`                 | Cleaned protein FASTA files (invalid characters fixed)                    |
+| `pangenome_segments.fa`                   | Extracted segment sequences from GFA                                      |
+| `pangenome_segments.dmnd`                 | DIAMOND protein database created from segment sequences                   |
+| `diamond_results/`                        | Raw DIAMOND alignment results of proteins vs. segments                    |
+| `diamond_results_clean/`                  | Filtered and cleaned DIAMOND alignment outputs                            |
+| `segment_classification.tsv`              | Classification of segments into core, accessory, or unique                |
+| `gene_matrix.tsv`                         | Matrix mapping genes to segment presence and classification               |
+| `gene_lists_per_class/`                   | Lists of genes exclusive to each segment class                            |
+| `barplot_genes_per_class.png`             | Barplot visualization of gene counts per class                            |
+| `piechart_genes_per_class.png`            | Pie chart visualization of gene distribution per class                    |
+| `create_gfa_with_W.py`                    | Script adding 'W' lines to GFA file for path annotation                   |
+| `extract_all_paths_as_gfa.sh`             | Shell script to extract all paths from the GFA file                       |
+| `generate_w_lines.py`                     | Python script generating 'W' lines for GFA                                |
+| `plot_class_stats.py`                     | Script generating visual statistics and plots                             |
+| `hmmscan_results_cleaned/`                | Directory with HMMER hmmscan output domain table files                    |
+| `all_pfams.tsv`                           | Consolidated PFAM domain hits parsed from hmmscan outputs                 |
+| `orthofinder_out/`                        | OrthoFinder clustering results directory                                  |
+| `pfams_per_orthogroup.tsv`                | Merged PFAM domain and orthogroup membership table                        |
+| `pannzer_results/`                        | Functional annotations from PANNZER2 (CSV per genome)                     |
+| `pannzer_cleaned/`                        | Cleaned `gene2go.tsv` tables per genome extracted from PANNZER2           |
+| `all_gene2go.tsv`                         | Unified gene-to-GO mapping for all genomes                                |
+| `orthogroup_pangenome_classification.tsv` | Counts of core/accessory/exclusive genes per orthogroup                   |
+| `topGO_inputs/`                           | Contains gene lists and gene2go inputs used for enrichment                |
+| `topGO_results/`                          | topGO output tables per class (core, accessory, exclusive)                |
+| `dotplot_core_GO_terms.png`               | Dotplot visualization of enriched GO terms in core genes                  |
+| `dotplot_accessory_GO_terms.png`          | Dotplot visualization of enriched GO terms in accessory genes             |
+| `dotplot_exclusive_GO_terms.png`          | Dotplot visualization of most frequent GO terms in exclusive genes        |
+| `all_GO_terms_dotplot.tsv`                | Combined table used for GO dotplot generation                             |
+| `top_GO_terms_summary.txt`                | Top 20 GO terms per class for biological interpretation                   |
+| `revigo_input_core.tsv`                   | Input table for REVIGO using core enriched GO terms                       |
+| `revigo_input_accessory.tsv`              | Input table for REVIGO using accessory enriched GO terms                  |
+| `revigo_input_exclusive.tsv`              | Input table for REVIGO using top GO terms by frequency in exclusive genes |
 
 ---
 
@@ -172,8 +186,94 @@ Consolidation Script `parse_hmmscan_results.py` produces `all_pfams.tsv`: a unif
 
 - Merging PFAM Domains with Orthogroups: `merge_pfams_orthogroups.py`
   - ***Output:***  `pfams_per_orthogroup.tsv`, combining PFAM domains with orthogroup membership and species labels.
- 
-# IMPORTANTE: AGREGAR LA PARTE DE PANNZER2 Y EL MAPEO DE ORTOGRUPOS A LAS CATEGORÍAS DEL PANGENOMA
+
+### 11. Functional Annotation with PANNZER2 (Gene Ontology)
+Step: Running PANNZER2 per genome
+- One PANNZER2 run was launched per genome's predicted proteome.
+- Each run generated multiple files, including:
+  - HTML summaries for blocks of 1,000 queries.
+  - Downloadable .csv files containing GO term predictions.
+
+Output files per genome:
+- `pannzer_results/*.csv`
+Each file corresponds to one genome and contains multiple annotations per gene.
+
+### 12. Extracting GO Terms from PANNZER2 Output
+Script used: `extract_gene2go_from_pannzer.py`
+  - Parses the .csv outputs from PANNZER2.
+  - Filters and explodes GO terms from columns like MF_ARGOT, BP_ARGOT, etc.
+  - Produces a 2-column TSV with gene ID and GO term ID.
+
+Input:
+- Folder `pannzer_results/` containing .csv files from each PANNZER2 run.
+
+Output:
+- Folder `pannzer_cleaned/`, containing one file per genome:
+  - Format: `{species}_gene2go.tsv`
+
+Combined Output:
+  - `all_gene2go.tsv` — Unified table with all genes and their GO annotations across genomes.
+
+### 13. Creating Gene Lists by Pangenome Class
+Script used: `generate_gene_lists_by_class.py`
+  - Maps genes to their corresponding orthogroup using `Orthogroups.tsv`.
+  - Cross-references orthogroups with class definitions from `orthogroup_pangenome_classification.tsv`.
+
+Inputs:
+  - `Orthogroups.tsv`
+  - `orthogroup_pangenome_classification.tsv`
+
+Output:
+  - Folder `gene_lists_per_class/`
+    - Files: `core_genes.txt`, `accessory.txt`, `exclusive_genes.txt` (each with gene IDs per class)
+  - `background_gene_list.txt` — All genes with GO terms, for enrichment background.
+
+### 14. Gene Ontology Enrichment Analysis with topGO
+Script used: `topgo_enrichment_class.R`
+(Executed separately for each class: core, accessory, exclusive)
+  - Builds a topGOdata object per class.
+  - Uses annFUN.gene2GO for gene-to-GO mapping.
+  - Performs Classic Fisher's exact test with BH correction (FDR).
+  - Ontology used: Biological Process (BP)
+
+Input:
+  - `gene_lists_per_class/` — Gene lists per class
+  - `all_gene2go.tsv` — Gene to GO mapping
+
+Output:
+  - `topGO_results/`
+    - Files: `topGO_BP_core.tsv`, `topGO_BP_accessory.tsv`, `topGO_BP_exclusive.tsv`
+
+Note:
+- For the exclusive class, no enriched terms were detected under default parameters.
+- Additional relaxed versions were tested using smaller nodeSize and no FDR filter, but few terms were found.
+- Top GO terms by frequency (not enrichment) were extracted for exclusive class.
+
+### 15. Dotplot Visualization of Enriched GO Terms
+Script used: `dotplot_GO_terms_by_class.py`
+  - Loads filtered and merged GO term tables.
+  - Computes -log10(FDR) and optionally GeneRatio.
+  - Visualizes top 20 GO terms per class using seaborn.scatterplot.
+
+Inputs:
+  - `topGO_results/all_GO_terms_dotplot.tsv`
+
+Outputs:
+  - `dotplot_core_GO_terms.png`
+  - `dotplot_accessory_GO_terms.png`
+  - `dotplot_exclusive_GO_terms.png`
+
+### 16. Exporting Top GO Terms for Biological Interpretation and REVIGO
+Script used: `extract_top_GO_terms_and_REVIGO.py`
+  - Extracts top 20 GO terms per class.
+  - For enriched categories (core, accessory), ranks by FDR.
+  - For exclusive (no enrichment), ranks by frequency in annotation.
+
+Outputs:
+  - `top_GO_terms_summary.txt` — Summary of top GO terms.
+  - `revigo_input_core.tsv`, `revigo_input_accessory.tsv`, `revigo_input_exclusive.tsv` — TSV inputs for uploading to REVIGO.
+
+
 
 ### Summary Outputs & Visualization of functional annotation and orthogroup analysis
 - `class_summary.tsv`: summarizes counts of orthogroups per category (core, accessory, exclusive).
@@ -210,12 +310,14 @@ This section concludes the functional annotation and clustering workflow, linkin
 - Solution: Developed custom parsing scripts (`classify_segments_by_paths.py`) that efficiently read GFA W lines and path embeddings.
 
 ### Software and Tools Used
-- ***VG toolkit:*** graph processing (https://github.com/vgteam/vg)
-- ***DIAMOND:*** fast protein aligner (https://github.com/bbuchfink/diamond)
-- ***HMMER (hmmscan):*** protein domain search using PFAM (http://hmmer.org/)
-- ***OrthoFinder:*** orthogroup clustering and comparative genomics (https://github.com/davidemms/OrthoFinder)
-- ***PANNZER2:*** automated functional annotation tool (https://github.com/katariapannzer/pannzer2)
-- ***Python 3:*** custom scripts using pandas, matplotlib, seaborn
-- ***R with GOdb & topGO packages:*** GO term annotation and enrichment analysis
-- ***gffread:*** annotation processing
-- ***Shell scripting:*** batch commands and file parsing
+- ***VG toolkit:*** graph construction and analysis (GitHub)
+- ***DIAMOND:*** ultra-fast protein aligner (GitHub)
+- ***HMMER (hmmscan):*** PFAM domain search (hmmer.org)
+- ***OrthoFinder:*** orthogroup clustering (GitHub)
+- ***PANNZER2:*** functional annotation via GO terms (GitHub)
+- ***Python 3:*** data parsing and visualization (pandas, matplotlib, seaborn)
+- ***R:*** GO term enrichment analysis with packages:
+- ***topGO:*** GO enrichment (Classic Fisher, BH correction)
+- ***GO.db:*** ontology graph and term mapping
+- ***gffread:*** GFF processing and transcript extraction
+- ***Shell scripting:*** automation of batch processing and data formatting
