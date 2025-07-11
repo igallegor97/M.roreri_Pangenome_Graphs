@@ -172,6 +172,8 @@ Consolidation Script `parse_hmmscan_results.py` produces `all_pfams.tsv`: a unif
 
 - Merging PFAM Domains with Orthogroups: `merge_pfams_orthogroups.py`
   - ***Output:***  `pfams_per_orthogroup.tsv`, combining PFAM domains with orthogroup membership and species labels.
+ 
+#IMPORTANTE: AGREGAR LA PARTE DE PANNZER2
 
 ### Summary Outputs & Visualization of functional annotation and orthogroup analysis
 - `class_summary.tsv`: summarizes counts of orthogroups per category (core, accessory, exclusive).
