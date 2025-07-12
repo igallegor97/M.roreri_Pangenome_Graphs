@@ -335,6 +335,74 @@ SGE array job that:
   -  `iqtree_results_cleaned/OG000XXXX/OG000XXXX.treefile` — One tree per orthogroup
   - Log and model selection files for each alignment
 
+### 21. Filtering Codon Alignments to Remove Problematic Orthogroups
+**Goal:**
+Remove alignments with internal stop codons or inconsistent sequence lengths before phylogenetic analysis.
+  - **Script:**
+    - `filter_clean_codon_alignments.py`
+  - **Inputs:**
+    -  `codon_alignments_chunks/chunk_*/.fasta` — All codon alignments by chunk.
+
+**Process:**
+- For each .fasta alignment:
+  - Checks for internal stop codons.
+  -  Ensures all sequences are the same length and are multiples of 3.
+  -  Only valid alignments are copied to the output directory.
+
+  **Outputs:**
+    - `codon_alignments_cleaned/` — Directory containing only clean alignments.
+    - `valid_codon_alignments.txt` — List of valid orthogroups.
+
+### 22. Variant Annotation and Association with Pangenome Segments
+**Goal:**
+Cross-reference detected variants (from the VCF) with pangenome graph segments to assign a “class” (core, accessory, unique, unclassified) to each variant.
+  - **Scripts:**
+    - `cross_vcf_with_pangenome_classes.py`
+
+  - **Inputs:**
+    -  `Mror_Pangenome_pacbio.annotated.vcf` — Annotated VCF file of variants.
+    - `segment_classification.tsv` — Table of pangenome segment IDs and their class.
+
+**Process:**
+  -  Parses variant IDs to extract associated GFA nodes.
+  - Maps nodes to segment classes using `segment_classification.tsv`.
+  - Assigns a final class to each variant based on the majority class among associated nodes.
+
+  - **Outputs:**
+    - `variant_counts_by_class_and_type.tsv` — Table of variant counts by class and type.
+    - Table listing each variant with its class and type.
+      
+### 23. Variant Visualization: Barplots and Heatmaps
+**Goal:**
+Produce clear, publication-quality visualizations of variant distribution.
+
+  - **Script:**
+    -  `plot_variants_per_class.py`
+
+  - **Inputs:**
+    -  `variant_counts_by_class_and_type.tsv`
+
+  - **Outputs:**
+    -  `barplot_variants_by_class_and_type.png` — Barplot: variants by class and type.
+    - `heatmap_variants_by_class_and_type.png` — Heatmap: abundance of each variant type in each class.
+
+### 24. Detection of Variant Hotspots in the Pangenome
+**Goal:**
+Identify regions in the pangenome with unusually high densities of variants (“hotspots”) for biological interpretation and further visualization.
+
+  - **Script:**
+    -  `variant_hotspots_analysis.py` 
+
+  - **Inputs:**
+    - Output from the variant-class cross step (variants mapped to positions, classes, and chromosomes).
+
+**Process:**
+  - Uses a sliding window approach (e.g., 5-node windows) to compute variant density.
+  - Hotspots are defined as windows with the highest densities.
+
+  - **Outputs:**
+    -  `variant_hotspots_refined.tsv` — Annotated table of hotspots with class, type, chromosome, start and end nodes, and variant density.
+
 ---
 
 ### Definitions
