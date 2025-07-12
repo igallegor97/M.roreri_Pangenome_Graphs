@@ -268,12 +268,9 @@ Script used: `extract_top_GO_terms_and_REVIGO.py`
   - Extracts top 20 GO terms per class.
   - For enriched categories (core, accessory), ranks by FDR.
   - For exclusive (no enrichment), ranks by frequency in annotation.
-
 Outputs:
   - `top_GO_terms_summary.txt` — Summary of top GO terms.
   - `revigo_input_core.tsv`, `revigo_input_accessory.tsv`, `revigo_input_exclusive.tsv` — TSV inputs for uploading to REVIGO.
-
-
 
 ### Summary Outputs & Visualization of functional annotation and orthogroup analysis
 - `class_summary.tsv`: summarizes counts of orthogroups per category (core, accessory, exclusive).
@@ -281,6 +278,64 @@ Outputs:
 - `plot_class_stats.py` produces barplot/pie-chart summaries of genes per class and domains by class (e.g., `barplot_genes_per_class.png`, `piechart_genes_per_class.png`).
 
 This section concludes the functional annotation and clustering workflow, linking protein domains to orthogroup categories for downstream enrichment and evolutionary analyses.
+
+### 17. Codon-Aware Sequence Alignment for dN/dS Analysis
+**Goal:** Prepare codon-based multiple alignments per orthogroup for evolutionary analysis.
+
+**Input:**
+  - `cds_by_orthogroup/` — FASTA files of codon sequences per orthogroup (18,818 files), generated using GFF and FASTA annotations.
+
+  **Step 1: Split into Chunks for Cluster Execution**
+  **Script used:** `split_fasta_chunks.py`
+    This script organizes the 18,818 `.fa` files into 38 balanced subdirectories:
+
+   - `cds_by_orthogroup_chunks/chunk_001/` ... `chunk_038/`
+    Each chunk contains \~495 FASTA files to allow parallel processing in the cluster.
+
+### 18. Codon-Based Alignment with MAFFT
+**Goal:** Perform codon-aware multiple sequence alignment using MAFFT for each orthogroup.
+  **Execution:**
+  -  **MAFFT version:** `7.487`
+
+**Job script:** `run_mafft_chunks.sge`
+Each task in the job array aligns all `.fa` files within a given chunk:
+
+- `codon_alignments_chunks/chunk_001/*.fasta` ... `chunk_038/*.fasta`
+
+**Output:**
+  - `codon_alignments_chunks/` — Aligned FASTA files using `--thread 8`
+
+### 19. Filtering Valid Alignments for dN/dS (Quality Control)
+**Goal:** Remove alignments with internal stop codons or frame inconsistencies.
+
+  **Script used:** `filter_clean_codon_alignments.py`
+  This script:
+    - Traverses all aligned `.fasta` files in `codon_alignments_chunks/`
+    - Validates that:
+      - All sequences are of equal length
+      - Length is a multiple of 3
+      - No internal stop codons (`TAA`, `TAG`, `TGA`) exist in frame
+      - Copies valid alignments to: `codon_alignments_cleaned/`
+
+**Output:**
+  - `codon_alignments_cleaned/` — Cleaned alignments ready for tree/dN/dS analysis
+  - `valid_codon_alignments.txt` — List of orthogroups passing quality filters (9,220 files)
+  - 
+### 20. Phylogenetic Tree Construction with IQ-TREE
+**Goal:** Generate one tree per valid orthogroup using codon-based models.
+ - **Job script:** `run_iqtree_cleaned.sge`
+SGE array job that:
+- Iterates over each `.fasta` in `codon_alignments_cleaned/`
+- Launches IQ-TREE with:
+  * `-st CODON`
+  * `-m GY`
+  * `-nt 4`
+
+**Output:**
+  -  `iqtree_results_cleaned/OG000XXXX/OG000XXXX.treefile` — One tree per orthogroup
+  - Log and model selection files for each alignment
+
+---
 
 ### Definitions
 - ***Segment:*** A graph node representing a DNA sequence fragment in the pangenome graph.
